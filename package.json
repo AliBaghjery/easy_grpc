@@ -1,0 +1,60 @@
+{
+  "name": "easy-grpc",
+  "version": "0.1.0",
+  "description": "A cross-platform gRPC client with proto file loading and server reflection",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev -- --no-sandbox",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": ["grpc", "electron", "proto", "client"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@electron-toolkit/utils": "^3.0.0",
+    "@grpc/grpc-js": "^1.12.0",
+    "@grpc/proto-loader": "^0.7.13",
+    "electron-store": "^8.2.0",
+    "grpc-reflection-js": "^0.3.0",
+    "protobufjs": "^7.4.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "uuid": "^11.0.3",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8"
+  },
+  "build": {
+    "appId": "com.easy-grpc.app",
+    "productName": "easy gRPC",
+    "directories": {
+      "output": "release"
+    },
+    "files": ["out/**/*"],
+    "linux": {
+      "target": ["AppImage", "deb"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    },
+    "win": {
+      "target": ["nsis"]
+    }
+  }
+}

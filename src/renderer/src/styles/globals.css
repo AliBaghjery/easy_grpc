@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-surface text-white font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    user-select: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent-muted;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-full bg-surface-overlay border border-border rounded-md px-3 py-2 text-sm
+      text-white placeholder:text-gray-500
+      focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent
+      transition-colors;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium
+      transition-colors cursor-pointer select-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent hover:bg-accent-hover text-white;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-surface-overlay text-gray-400 hover:text-white;
+  }
+
+  .btn-danger {
+    @apply btn bg-transparent hover:bg-error/10 text-error;
+  }
+
+  .label {
+    @apply block text-xs font-medium text-gray-400 mb-1;
+  }
+
+  .code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  .panel {
+    @apply bg-surface-raised border border-border rounded-lg;
+  }
+
+  .divider {
+    @apply border-border;
+  }
+}
