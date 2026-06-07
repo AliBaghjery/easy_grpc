@@ -9,6 +9,9 @@ import type {
   Tab
 } from '../../../shared/types'
 
+// ProtoService used in openTab signature
+type _ProtoService = ProtoService
+
 function tabKey(projectId: string, service: ProtoService, method: ProtoMethod): string {
   return `${projectId}:${service.fullName}:${method.name}`
 }
@@ -60,20 +63,10 @@ function getDefaultForType(type: string): unknown {
 interface AppState {
   // ── Projects ──────────────────────────────────────────────
   projects: GrpcProject[]
-  selectedProjectId: string | null
   setProjects: (projects: GrpcProject[]) => void
   addProject: (project: GrpcProject) => void
   updateProject: (project: GrpcProject) => void
   removeProject: (id: string) => void
-  selectProject: (id: string | null) => void
-
-  // ── Proto tree ────────────────────────────────────────────
-  services: ProtoService[]
-  setServices: (services: ProtoService[]) => void
-  protoLoading: boolean
-  setProtoLoading: (loading: boolean) => void
-  protoError: string | null
-  setProtoError: (error: string | null) => void
 
   // ── Tabs ──────────────────────────────────────────────────
   tabs: Tab[]
@@ -96,7 +89,6 @@ interface AppState {
 export const useAppStore = create<AppState>((set, get) => ({
   // ── Projects ──────────────────────────────────────────────
   projects: [],
-  selectedProjectId: null,
   setProjects: (projects) => set({ projects }),
   addProject: (project) => set((s) => ({ projects: [...s.projects, project] })),
   updateProject: (project) =>
@@ -104,21 +96,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   removeProject: (id) =>
     set((s) => ({
       projects: s.projects.filter((p) => p.id !== id),
-      selectedProjectId: s.selectedProjectId === id ? null : s.selectedProjectId,
       tabs: s.tabs.filter((t) => t.projectId !== id),
       activeTabId:
         s.tabs.find((t) => t.id === s.activeTabId)?.projectId === id ? null : s.activeTabId
     })),
-  selectProject: (id) =>
-    set({ selectedProjectId: id, services: [], protoError: null }),
-
-  // ── Proto tree ────────────────────────────────────────────
-  services: [],
-  setServices: (services) => set({ services }),
-  protoLoading: false,
-  setProtoLoading: (protoLoading) => set({ protoLoading }),
-  protoError: null,
-  setProtoError: (protoError) => set({ protoError }),
 
   // ── Tabs ──────────────────────────────────────────────────
   tabs: [],

@@ -4,11 +4,7 @@ import { TabBar } from './components/TabBar'
 import { RequestPanel } from './components/RequestPanel'
 import { ResponsePanel } from './components/ResponsePanel'
 import { ProjectModal } from './components/ProjectModal'
-import { useAppStore } from './store/appStore'
-
 export default function App(): React.ReactElement {
-  const { protoError, setProtoError } = useAppStore()
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface text-white">
       {/* Sidebar */}
@@ -25,14 +21,6 @@ export default function App(): React.ReactElement {
             easy <span className="text-accent">gRPC</span>
           </span>
         </div>
-
-        {/* Proto load error banner */}
-        {protoError && (
-          <div className="flex items-center gap-3 px-4 py-2 bg-error/10 border-b border-error/30 text-xs text-error flex-shrink-0">
-            <span className="flex-1">Proto error: {protoError}</span>
-            <button onClick={() => setProtoError(null)} className="hover:text-white transition-colors">✕</button>
-          </div>
-        )}
 
         {/* Tab bar */}
         <TabBar />
