@@ -4,7 +4,11 @@ import { TabBar } from './components/TabBar'
 import { RequestPanel } from './components/RequestPanel'
 import { ResponsePanel } from './components/ResponsePanel'
 import { ProjectModal } from './components/ProjectModal'
+import { useTabPersistence } from './hooks/useTabPersistence'
+
 export default function App(): React.ReactElement {
+  useTabPersistence()
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface text-white">
       {/* Sidebar */}

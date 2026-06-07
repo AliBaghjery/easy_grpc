@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '../shared/types'
-import type { GrpcProject, GrpcCallRequest, LoadedProto, GrpcCallResponse } from '../shared/types'
+import type {
+  GrpcProject,
+  GrpcCallRequest,
+  LoadedProto,
+  GrpcCallResponse,
+  PersistedProjectTabs
+} from '../shared/types'
 
 const api = {
   // ── Projects ──────────────────────────────────────────────
@@ -33,6 +39,13 @@ const api = {
 
   cancelCall: (callId: string): Promise<{ cancelled: boolean }> =>
     ipcRenderer.invoke(IPC.GRPC_CANCEL, callId),
+
+  // ── Tab persistence ────────────────────────────────────────────────────────
+  saveTabs: (projectId: string, data: PersistedProjectTabs): Promise<{ success: boolean }> =>
+    ipcRenderer.invoke(IPC.TABS_SAVE, projectId, data),
+
+  loadAllTabs: (): Promise<Record<string, PersistedProjectTabs>> =>
+    ipcRenderer.invoke(IPC.TABS_LOAD_ALL),
 
   // ── Streaming events ──────────────────────────────────────
   onStreamData: (cb: (data: unknown) => void) => {

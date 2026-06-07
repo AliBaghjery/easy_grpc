@@ -1,31 +1,27 @@
 import Store from 'electron-store'
 import { v4 as uuid } from 'uuid'
 import type { IpcMain } from 'electron'
-import type { GrpcProject } from '../../shared/types'
+import type { GrpcProject, PersistedProjectTabs } from '../../shared/types'
 import { IPC } from '../../shared/types'
 
 interface StoreSchema {
   projects: GrpcProject[]
+  tabs: Record<string, PersistedProjectTabs>
 }
 
 const store = new Store<StoreSchema>({
   name: 'easy-grpc-projects',
-  defaults: { projects: [] }
+  defaults: { projects: [], tabs: {} }
 })
 
 export function registerProjectHandlers(ipcMain: IpcMain): void {
-  ipcMain.handle(IPC.PROJECT_LIST, () => {
-    return store.get('projects', [])
-  })
+  // ── Projects ────────────────────────────────────────────────────────────────
+
+  ipcMain.handle(IPC.PROJECT_LIST, () => store.get('projects', []))
 
   ipcMain.handle(IPC.PROJECT_CREATE, (_event, project: Omit<GrpcProject, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString()
-    const newProject: GrpcProject = {
-      ...project,
-      id: uuid(),
-      createdAt: now,
-      updatedAt: now
-    }
+    const newProject: GrpcProject = { ...project, id: uuid(), createdAt: now, updatedAt: now }
     const projects = store.get('projects', [])
     store.set('projects', [...projects, newProject])
     return newProject
@@ -44,6 +40,24 @@ export function registerProjectHandlers(ipcMain: IpcMain): void {
   ipcMain.handle(IPC.PROJECT_DELETE, (_event, id: string) => {
     const projects = store.get('projects', [])
     store.set('projects', projects.filter((p) => p.id !== id))
+    // Clean up persisted tabs for deleted project
+    const tabs = store.get('tabs', {})
+    delete tabs[id]
+    store.set('tabs', tabs)
     return { success: true }
   })
+
+  // ── Tab persistence ─────────────────────────────────────────────────────────
+
+  ipcMain.handle(
+    IPC.TABS_SAVE,
+    (_event, projectId: string, data: PersistedProjectTabs) => {
+      const tabs = store.get('tabs', {})
+      tabs[projectId] = data
+      store.set('tabs', tabs)
+      return { success: true }
+    }
+  )
+
+  ipcMain.handle(IPC.TABS_LOAD_ALL, () => store.get('tabs', {}))
 }

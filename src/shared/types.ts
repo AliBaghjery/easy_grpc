@@ -96,6 +96,21 @@ export interface Tab {
   callLoading: boolean
 }
 
+/** Subset of Tab that survives app restarts (no runtime-only fields) */
+export interface PersistedTab {
+  key: string
+  service: ProtoService
+  method: ProtoMethod
+  requestPayload: string
+  requestMetadata: GrpcMetadataEntry[]
+}
+
+export interface PersistedProjectTabs {
+  tabs: PersistedTab[]
+  /** key of the tab that was active when the app closed */
+  activeTabKey: string | null
+}
+
 // IPC channel names — single source of truth
 export const IPC = {
   // Projects
@@ -116,5 +131,9 @@ export const IPC = {
   // Streaming events (main → renderer)
   GRPC_STREAM_DATA: 'grpc:stream-data',
   GRPC_STREAM_END: 'grpc:stream-end',
-  GRPC_STREAM_ERROR: 'grpc:stream-error'
+  GRPC_STREAM_ERROR: 'grpc:stream-error',
+
+  // Tab persistence
+  TABS_SAVE: 'tabs:save',
+  TABS_LOAD_ALL: 'tabs:load-all'
 } as const
