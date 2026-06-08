@@ -149,6 +149,11 @@ function BodyEditor({
     }
   }
 
+  function handleReset(): void {
+    onReset()
+    setJsonError(null)
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
@@ -162,7 +167,7 @@ function BodyEditor({
             </span>
           )}
           <button
-            onClick={onReset}
+            onClick={handleReset}
             title="Reset to defaults"
             className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-200 transition-colors"
           >
