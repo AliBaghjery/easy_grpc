@@ -76,6 +76,7 @@ interface AppState {
   closeTab: (id: string) => void
   setActiveTab: (id: string) => void
   updateTab: (id: string, patch: Partial<Tab>) => void
+  resetTabPayload: (id: string) => void
   activeTab: () => Tab | null
 
   // ── UI ────────────────────────────────────────────────────
@@ -144,6 +145,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateTab: (id, patch) =>
     set((s) => ({
       tabs: s.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t))
+    })),
+
+  resetTabPayload: (id) =>
+    set((s) => ({
+      tabs: s.tabs.map((t) =>
+        t.id === id ? { ...t, requestPayload: buildDefaultPayload(t.method) } : t
+      )
     })),
 
   activeTab: () => {

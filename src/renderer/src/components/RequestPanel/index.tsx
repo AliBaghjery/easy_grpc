@@ -5,7 +5,7 @@ import { MetadataEditor } from './MetadataEditor'
 type Tab = 'body' | 'metadata'
 
 export function RequestPanel(): React.ReactElement {
-  const { activeTab, updateTab, projects, setActiveTab, activeTabId } = useAppStore()
+  const { activeTab, updateTab, resetTabPayload, projects, setActiveTab, activeTabId } = useAppStore()
   const tab = activeTab()
 
   const [uiTab, setUiTab] = useState<Tab>('body')
@@ -112,6 +112,7 @@ export function RequestPanel(): React.ReactElement {
           <BodyEditor
             value={tab.requestPayload}
             onChange={(v) => updateTab(tab.id, { requestPayload: v })}
+            onReset={() => resetTabPayload(tab.id)}
             requestType={tab.method.requestType}
           />
         ) : (
@@ -128,10 +129,12 @@ export function RequestPanel(): React.ReactElement {
 function BodyEditor({
   value,
   onChange,
+  onReset,
   requestType
 }: {
   value: string
   onChange: (v: string) => void
+  onReset: () => void
   requestType: string
 }): React.ReactElement {
   const [jsonError, setJsonError] = useState<string | null>(null)
@@ -152,11 +155,21 @@ function BodyEditor({
         <span className="text-xs text-gray-500">
           <span className="text-gray-400 font-mono">{requestType}</span> · JSON
         </span>
-        {jsonError && (
-          <span className="text-xs text-error truncate max-w-[200px]" title={jsonError}>
-            {jsonError}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {jsonError && (
+            <span className="text-xs text-error truncate max-w-[200px]" title={jsonError}>
+              {jsonError}
+            </span>
+          )}
+          <button
+            onClick={onReset}
+            title="Reset to defaults"
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-200 transition-colors"
+          >
+            <ResetIcon />
+            Reset
+          </button>
+        </div>
       </div>
       <textarea
         value={value}
@@ -194,6 +207,15 @@ function SendIcon(): React.ReactElement {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
       <path d="M1 6H11M11 6L7 2M11 6L7 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function ResetIcon(): React.ReactElement {
+  return (
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+      <path d="M2 6a4 4 0 1 0 .8-2.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 2.5V5.5H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
