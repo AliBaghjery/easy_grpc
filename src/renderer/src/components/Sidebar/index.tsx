@@ -125,26 +125,28 @@ function ProjectSection({ project }: { project: GrpcProject }): React.ReactEleme
         )}
 
         {/* Context menu */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v) }}
-          className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-gray-500 hover:text-white transition-all"
-        >
-          <DotsIcon />
-        </button>
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v) }}
+            className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-gray-500 hover:text-white transition-all"
+          >
+            <DotsIcon />
+          </button>
 
-        {menuOpen && (
-          <>
-            <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }} />
-            <div className="absolute right-2 mt-6 z-20 w-36 panel shadow-lg py-1 text-xs" style={{ marginTop: '1.5rem' }}>
-              <button onClick={handleEdit} className="w-full text-left px-3 py-1.5 hover:bg-surface-overlay text-gray-300 hover:text-white transition-colors">
-                Edit project
-              </button>
-              <button onClick={handleDelete} className="w-full text-left px-3 py-1.5 hover:bg-error/10 text-error transition-colors">
-                Delete project
-              </button>
-            </div>
-          </>
-        )}
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }} />
+              <div className="absolute right-0 top-full mt-1 z-20 w-36 panel shadow-lg py-1 text-xs">
+                <button onClick={handleEdit} className="w-full text-left px-3 py-1.5 hover:bg-surface-overlay text-gray-300 hover:text-white transition-colors">
+                  Edit project
+                </button>
+                <button onClick={handleDelete} className="w-full text-left px-3 py-1.5 hover:bg-error/10 text-error transition-colors">
+                  Delete project
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Expanded content */}
