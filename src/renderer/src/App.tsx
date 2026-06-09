@@ -47,7 +47,7 @@ export default function App(): React.ReactElement {
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
         >
           <span className="text-xs font-semibold text-gray-500 tracking-widest select-none">
-            easy <span className="text-accent">gRPC</span>
+            eASY <span className="text-accent">gRPC</span>
           </span>
         </div>
 

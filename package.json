@@ -12,7 +12,7 @@
     "dist:linux": "electron-vite build && electron-builder --linux"
   },
   "keywords": ["grpc", "electron", "proto", "client"],
-  "author": "easy gRPC",
+  "author": "eASY gRPC",
   "homepage": "https://github.com/easy-grpc/easy-grpc",
   "license": "MIT",
   "dependencies": {
@@ -44,7 +44,7 @@
   },
   "build": {
     "appId": "com.easy-grpc.app",
-    "productName": "easy gRPC",
+    "productName": "eASY gRPC",
     "copyright": "Copyright © 2024",
     "icon": "build/icon.png",
     "directories": {
@@ -70,7 +70,7 @@
       ],
       "category": "Development",
       "description": "A lightweight gRPC client with proto file loading and server reflection",
-      "maintainer": "easy gRPC"
+      "maintainer": "eASY gRPC"
     },
     "mac": {
       "target": ["dmg"],

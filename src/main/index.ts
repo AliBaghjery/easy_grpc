@@ -103,12 +103,12 @@ function buildMenu(): void {
       role: 'help' as const,
       submenu: [
         {
-          label: 'About easy gRPC',
+          label: 'About eASY gRPC',
           click: () =>
             dialog.showMessageBox({
               type: 'info',
-              title: 'About easy gRPC',
-              message: 'easy gRPC',
+              title: 'About eASY gRPC',
+              message: 'eASY gRPC',
               detail: `Version ${app.getVersion()}\n\nA lightweight gRPC client.`
             })
         },
