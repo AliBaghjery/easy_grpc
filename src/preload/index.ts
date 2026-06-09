@@ -64,6 +64,19 @@ const api = {
     const handler = (_: Electron.IpcRendererEvent, error: string) => cb(error)
     ipcRenderer.on(IPC.GRPC_STREAM_ERROR, handler)
     return () => ipcRenderer.removeListener(IPC.GRPC_STREAM_ERROR, handler)
+  },
+
+  // ── Menu events (main → renderer) ─────────────────────────
+  onMenuOpenSearch: (cb: () => void) => {
+    const handler = () => cb()
+    ipcRenderer.on(IPC.MENU_OPEN_SEARCH, handler)
+    return () => ipcRenderer.removeListener(IPC.MENU_OPEN_SEARCH, handler)
+  },
+
+  onMenuNewProject: (cb: () => void) => {
+    const handler = () => cb()
+    ipcRenderer.on(IPC.MENU_NEW_PROJECT, handler)
+    return () => ipcRenderer.removeListener(IPC.MENU_NEW_PROJECT, handler)
   }
 }
 

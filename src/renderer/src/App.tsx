@@ -6,6 +6,7 @@ import { ResponsePanel } from './components/ResponsePanel'
 import { ProjectModal } from './components/ProjectModal'
 import { CommandPalette } from './components/CommandPalette'
 import { useTabPersistence } from './hooks/useTabPersistence'
+import { useAppStore } from './store/appStore'
 
 export default function App(): React.ReactElement {
   useTabPersistence()
@@ -20,6 +21,17 @@ export default function App(): React.ReactElement {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  useEffect(() => {
+    const unsubSearch = window.api.onMenuOpenSearch(() => setPaletteOpen(true))
+    const unsubNewProject = window.api.onMenuNewProject(() =>
+      useAppStore.getState().openNewProjectModal()
+    )
+    return () => {
+      unsubSearch()
+      unsubNewProject()
+    }
   }, [])
 
   return (

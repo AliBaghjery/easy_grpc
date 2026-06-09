@@ -135,5 +135,9 @@ export const IPC = {
 
   // Tab persistence
   TABS_SAVE: 'tabs:save',
-  TABS_LOAD_ALL: 'tabs:load-all'
+  TABS_LOAD_ALL: 'tabs:load-all',
+
+  // Menu → renderer events (main sends, renderer listens)
+  MENU_OPEN_SEARCH: 'menu:open-search',
+  MENU_NEW_PROJECT: 'menu:new-project'
 } as const

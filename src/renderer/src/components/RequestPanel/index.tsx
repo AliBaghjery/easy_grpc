@@ -11,15 +11,7 @@ export function RequestPanel(): React.ReactElement {
   const [uiTab, setUiTab] = useState<Tab>('body')
 
   if (!tab) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 text-gray-600">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-          <rect x="6" y="10" width="32" height="24" rx="3" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M14 22h16M22 14v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-        <p className="text-sm">Select a method from the sidebar to open a tab</p>
-      </div>
-    )
+    return <EmptyState hasProjects={projects.length > 0} />
   }
 
   const project = projects.find((p) => p.id === tab.projectId) ?? null
@@ -222,5 +214,59 @@ function ResetIcon(): React.ReactElement {
       <path d="M2 6a4 4 0 1 0 .8-2.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M2 2.5V5.5H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  )
+}
+
+function EmptyState({ hasProjects }: { hasProjects: boolean }): React.ReactElement {
+  const isMac = navigator.platform.toUpperCase().includes('MAC')
+  const mod = isMac ? '⌘' : 'Ctrl'
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-6 text-gray-600 px-8 select-none">
+      {/* Icon */}
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="opacity-30">
+        <rect x="6" y="10" width="36" height="28" rx="4" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M15 24h18M24 15v18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+
+      {hasProjects ? (
+        <>
+          <p className="text-sm text-gray-500">Open a method to get started</p>
+          <div className="flex flex-col gap-2 items-center">
+            <ShortcutHint keys={[mod, 'P']} label="Search methods" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="text-center">
+            <p className="text-sm text-gray-400 font-medium">No projects yet</p>
+            <p className="text-xs text-gray-600 mt-1">Create a project to start making gRPC calls</p>
+          </div>
+          <div className="flex flex-col gap-2 items-center">
+            <ShortcutHint keys={[mod, 'N']} label="Create a new project" />
+            <ShortcutHint keys={[mod, 'P']} label="Search methods" />
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function ShortcutHint({ keys, label }: { keys: string[]; label: string }): React.ReactElement {
+  return (
+    <div className="flex items-center gap-2.5 text-xs text-gray-600">
+      <div className="flex items-center gap-1">
+        {keys.map((k, i) => (
+          <kbd
+            key={i}
+            className="inline-flex items-center justify-center min-w-[22px] h-5 px-1.5
+              bg-surface-overlay border border-border rounded text-[11px] text-gray-400 font-mono"
+          >
+            {k}
+          </kbd>
+        ))}
+      </div>
+      <span>{label}</span>
+    </div>
   )
 }
