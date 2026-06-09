@@ -1,13 +1,26 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { TabBar } from './components/TabBar'
 import { RequestPanel } from './components/RequestPanel'
 import { ResponsePanel } from './components/ResponsePanel'
 import { ProjectModal } from './components/ProjectModal'
+import { CommandPalette } from './components/CommandPalette'
 import { useTabPersistence } from './hooks/useTabPersistence'
 
 export default function App(): React.ReactElement {
   useTabPersistence()
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent): void {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        setPaletteOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface text-white">
@@ -42,6 +55,9 @@ export default function App(): React.ReactElement {
 
       {/* Project create/edit modal */}
       <ProjectModal />
+
+      {/* Command palette */}
+      {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
     </div>
   )
 }

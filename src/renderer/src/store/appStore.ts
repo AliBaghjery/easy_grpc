@@ -79,6 +79,10 @@ interface AppState {
   resetTabPayload: (id: string) => void
   activeTab: () => Tab | null
 
+  // ── Loaded protos (services/methods per project) ──────────
+  loadedProtos: Record<string, ProtoService[]>
+  setLoadedProto: (projectId: string, services: ProtoService[]) => void
+
   // ── UI ────────────────────────────────────────────────────
   showProjectModal: boolean
   editingProject: GrpcProject | null
@@ -158,6 +162,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { tabs, activeTabId } = get()
     return tabs.find((t) => t.id === activeTabId) ?? null
   },
+
+  // ── Loaded protos ─────────────────────────────────────────
+  loadedProtos: {},
+  setLoadedProto: (projectId, services) =>
+    set((s) => ({ loadedProtos: { ...s.loadedProtos, [projectId]: services } })),
 
   // ── UI ────────────────────────────────────────────────────
   showProjectModal: false,

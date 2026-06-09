@@ -42,7 +42,7 @@ export function Sidebar(): React.ReactElement {
 // ─── Per-project collapsible section ─────────────────────────────────────────
 
 function ProjectSection({ project }: { project: GrpcProject }): React.ReactElement {
-  const { openEditProjectModal, removeProject } = useAppStore()
+  const { openEditProjectModal, removeProject, setLoadedProto } = useAppStore()
   const [open, setOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [services, setServices] = useState<ProtoService[]>([])
@@ -59,6 +59,7 @@ function ProjectSection({ project }: { project: GrpcProject }): React.ReactEleme
       setError(result.error)
     } else {
       setServices(result.services)
+      setLoadedProto(project.id, result.services)
     }
   }
 
