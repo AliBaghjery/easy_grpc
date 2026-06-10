@@ -29,9 +29,11 @@ function tabsToPersistedMap(tabs: Tab[]): Record<string, import('../../../shared
 }
 
 export function useTabPersistence(): void {
-  const { tabs, activeTabId, updateTab, setActiveTab } = useAppStore()
+  const { tabs, activeTabId } = useAppStore()
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const loadedRef = useRef(false)
+  // Track every project ID that has ever had persisted tabs so we can clear them
+  const knownProjectIdsRef = useRef<Set<string>>(new Set())
 
   // ── Load on mount ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -43,6 +45,7 @@ export function useTabPersistence(): void {
       let firstActiveId: string | null = null
 
       for (const [_projectId, data] of Object.entries(allTabs)) {
+        knownProjectIdsRef.current.add(_projectId)
         for (const persisted of data.tabs) {
           const id = uuid()
           const tab: Tab = {
@@ -80,13 +83,12 @@ export function useTabPersistence(): void {
       const state = useAppStore.getState()
       const byProject = tabsToPersistedMap(state.tabs)
 
-      // Save each project's tabs (including projects whose tabs are now empty)
-      const projectIds = new Set([
-        ...state.tabs.map((t) => t.projectId),
-        ...Object.keys(byProject)
-      ])
+      // Register any new project IDs so they get cleared when their tabs are closed
+      for (const id of Object.keys(byProject)) knownProjectIdsRef.current.add(id)
 
-      for (const projectId of projectIds) {
+      // Save every known project — this writes an empty list for projects
+      // whose last tab was just closed, preventing stale data on restart
+      for (const projectId of knownProjectIdsRef.current) {
         window.api.saveTabs(projectId, byProject[projectId] ?? { tabs: [], activeTabKey: null })
       }
     }, SAVE_DEBOUNCE)
