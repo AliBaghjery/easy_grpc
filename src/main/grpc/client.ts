@@ -11,6 +11,14 @@ import { IPC } from '../../shared/types'
 // Active call registry for cancellation
 const activeCalls = new Map<string, grpc.ClientUnaryCall | grpc.ClientReadableStream<unknown>>()
 
+function flattenMetadata(meta: grpc.Metadata): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [key, val] of Object.entries(meta.getMap())) {
+    result[key] = Buffer.isBuffer(val) ? val.toString('base64') : String(val)
+  }
+  return result
+}
+
 function buildCredentials(project: GrpcProject): grpc.ChannelCredentials {
   if (!project.useTls) return grpc.credentials.createInsecure()
   if (project.tlsCertPath) {
@@ -106,8 +114,7 @@ async function getServiceClient(
 
 export function registerGrpcHandlers(ipcMain: IpcMain): void {
   ipcMain.handle(IPC.GRPC_INVOKE, async (event, req: GrpcCallRequest & { project: GrpcProject }): Promise<GrpcCallResponse> => {
-    const { project, serviceName, methodName, payload, metadata, timeoutMs = 30000 } = req
-    const callId = `${project.id}:${serviceName}.${methodName}:${Date.now()}`
+    const { callId, project, serviceName, methodName, payload, metadata, timeoutMs = 30000 } = req
     const start = Date.now()
 
     // For reflection-based projects, call via dynamic stub
@@ -121,6 +128,8 @@ export function registerGrpcHandlers(ipcMain: IpcMain): void {
 
       return new Promise<GrpcCallResponse>((resolveCall) => {
         const deadline = new Date(Date.now() + timeoutMs)
+        let headers: Record<string, string> = {}
+        let trailers: Record<string, string> = {}
 
         const call = (client as unknown as Record<string, Function>)[methodName](
           payload,
@@ -130,23 +139,37 @@ export function registerGrpcHandlers(ipcMain: IpcMain): void {
             activeCalls.delete(callId)
             const durationMs = Date.now() - start
             if (err) {
+              if (err.metadata) trailers = { ...trailers, ...flattenMetadata(err.metadata) }
               resolveCall({
                 status: 'error',
                 error: err.message,
                 grpcStatusCode: err.code,
                 grpcStatusMessage: err.details,
-                durationMs
+                durationMs,
+                headers,
+                trailers
               })
             } else {
               resolveCall({
                 status: 'success',
                 data: response,
-                durationMs
+                durationMs,
+                headers,
+                trailers
               })
             }
           }
-        )
-        activeCalls.set(callId, call as grpc.ClientUnaryCall)
+        ) as grpc.ClientUnaryCall
+
+        call.on('metadata', (meta: grpc.Metadata) => {
+          headers = flattenMetadata(meta)
+        })
+
+        call.on('status', (status: grpc.StatusObject) => {
+          if (status.metadata) trailers = flattenMetadata(status.metadata)
+        })
+
+        activeCalls.set(callId, call)
       })
     } catch (err) {
       return {
@@ -175,7 +198,7 @@ async function invokeViaReflection(
   payload: Record<string, unknown>,
   metadata: GrpcCallRequest['metadata'],
   timeoutMs: number,
-  _callId: string,
+  callId: string,
   start: number
 ): Promise<GrpcCallResponse> {
   try {
@@ -228,25 +251,42 @@ async function invokeViaReflection(
     const deadline = new Date(Date.now() + timeoutMs)
 
     return new Promise<GrpcCallResponse>((resolveCall) => {
-      ;(client as unknown as Record<string, Function>)[methodName](
+      let headers: Record<string, string> = {}
+      let trailers: Record<string, string> = {}
+
+      const call = (client as unknown as Record<string, Function>)[methodName](
         payload,
         grpcMeta,
         { deadline },
         (err: grpc.ServiceError | null, response: unknown) => {
+          activeCalls.delete(callId)
           const durationMs = Date.now() - start
           if (err) {
+            if (err.metadata) trailers = { ...trailers, ...flattenMetadata(err.metadata) }
             resolveCall({
               status: 'error',
               error: err.message,
               grpcStatusCode: err.code,
               grpcStatusMessage: err.details,
-              durationMs
+              durationMs,
+              headers,
+              trailers
             })
           } else {
-            resolveCall({ status: 'success', data: response, durationMs })
+            resolveCall({ status: 'success', data: response, durationMs, headers, trailers })
           }
         }
-      )
+      ) as grpc.ClientUnaryCall
+
+      call.on('metadata', (meta: grpc.Metadata) => {
+        headers = flattenMetadata(meta)
+      })
+
+      call.on('status', (status: grpc.StatusObject) => {
+        if (status.metadata) trailers = flattenMetadata(status.metadata)
+      })
+
+      activeCalls.set(callId, call)
     })
   } catch (err) {
     return {

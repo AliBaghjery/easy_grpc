@@ -62,6 +62,7 @@ export interface LoadedProto {
 }
 
 export interface GrpcCallRequest {
+  callId: string
   projectId: string
   serviceName: string
   methodName: string
@@ -94,6 +95,7 @@ export interface Tab {
   requestMetadata: GrpcMetadataEntry[]
   response: GrpcCallResponse | null
   callLoading: boolean
+  activeCallId: string | null
 }
 
 /** Subset of Tab that survives app restarts (no runtime-only fields) */

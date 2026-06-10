@@ -126,7 +126,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       requestPayload: buildDefaultPayload(method),
       requestMetadata: [{ key: '', value: '', enabled: true }],
       response: null,
-      callLoading: false
+      callLoading: false,
+      activeCallId: null
     }
     set((s) => ({ tabs: [...s.tabs, newTab], activeTabId: newTab.id }))
   },

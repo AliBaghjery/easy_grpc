@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { v4 as uuid } from 'uuid'
 import { useAppStore } from '../../store/appStore'
 import { MetadataEditor } from './MetadataEditor'
 
@@ -29,9 +30,11 @@ export function RequestPanel(): React.ReactElement {
       return
     }
 
-    updateTab(tab.id, { callLoading: true, response: { status: 'loading' } })
+    const callId = uuid()
+    updateTab(tab.id, { callLoading: true, activeCallId: callId, response: { status: 'loading' } })
 
     const res = await window.api.invoke({
+      callId,
       project,
       projectId: project.id,
       serviceName: tab.service.fullName,
@@ -41,7 +44,12 @@ export function RequestPanel(): React.ReactElement {
       timeoutMs: 30000
     })
 
-    updateTab(tab.id, { callLoading: false, response: res })
+    updateTab(tab.id, { callLoading: false, activeCallId: null, response: res })
+  }
+
+  function handleCancel(): void {
+    if (!tab?.activeCallId) return
+    window.api.cancelCall(tab.activeCallId)
   }
 
   return (
@@ -59,18 +67,23 @@ export function RequestPanel(): React.ReactElement {
         <span className="text-xs text-gray-500 flex-shrink-0">
           {project?.host}:{project?.port}
         </span>
-        <button
-          onClick={handleSend}
-          disabled={tab.callLoading}
-          className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-        >
-          {tab.callLoading ? (
-            <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
+        {tab.callLoading ? (
+          <button
+            onClick={handleCancel}
+            className="btn-danger flex-shrink-0"
+          >
+            <CancelIcon />
+            Cancel
+          </button>
+        ) : (
+          <button
+            onClick={handleSend}
+            className="btn-primary flex-shrink-0"
+          >
             <SendIcon />
-          )}
-          {tab.callLoading ? 'Sending…' : 'Send'}
-        </button>
+            Send
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -204,6 +217,14 @@ function SendIcon(): React.ReactElement {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
       <path d="M1 6H11M11 6L7 2M11 6L7 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function CancelIcon(): React.ReactElement {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <rect x="1" y="1" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   )
 }

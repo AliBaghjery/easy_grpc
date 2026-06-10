@@ -54,7 +54,8 @@ export function useTabPersistence(): void {
             requestPayload: persisted.requestPayload,
             requestMetadata: persisted.requestMetadata,
             response: null,
-            callLoading: false
+            callLoading: false,
+            activeCallId: null
           }
           newTabs.push(tab)
           if (persisted.key === data.activeTabKey && firstActiveId === null) {
